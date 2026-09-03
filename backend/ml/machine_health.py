@@ -1,12 +1,12 @@
 
-from sklearn.ensemble import IsolationForest
+
 from backend.ml.features import compute_deviations
 
 class MachineHealthEngine:
     _cache = {}
     
     def __init__(self):
-        # We use isolation forest for anomaly detection. Reduce estimators for massive speedup in demo.
+        from sklearn.ensemble import IsolationForest
         self.model = IsolationForest(n_estimators=15, contamination=0.1, random_state=42, n_jobs=1)
         
     def evaluate_health(self, machine_id, metrics):

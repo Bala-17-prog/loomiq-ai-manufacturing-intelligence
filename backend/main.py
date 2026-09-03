@@ -27,7 +27,10 @@ app.add_middleware(
 
 # Mount Static Files for images
 IMAGE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "fabric_images")
-os.makedirs(IMAGE_DIR, exist_ok=True)
+try:
+    os.makedirs(IMAGE_DIR, exist_ok=True)
+except OSError:
+    pass
 app.mount("/images", StaticFiles(directory=IMAGE_DIR), name="images")
 
 app.include_router(dashboard.router)

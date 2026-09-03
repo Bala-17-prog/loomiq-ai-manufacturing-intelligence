@@ -1,4 +1,4 @@
-import cv2
+
 import numpy as np
 import os
 import uuid
@@ -11,11 +11,15 @@ class PrototypeVisualAnomalyDetector:
         self.raw_dir = os.path.join(base_dir, "raw")
         self.processed_dir = os.path.join(base_dir, "processed")
         
-        os.makedirs(self.raw_dir, exist_ok=True)
-        os.makedirs(self.processed_dir, exist_ok=True)
+        try:
+            os.makedirs(self.raw_dir, exist_ok=True)
+            os.makedirs(self.processed_dir, exist_ok=True)
+        except OSError:
+            pass
         
     def process_image(self, file_bytes: bytes, filename: str):
         start_time = time.time()
+        import cv2
         
         # 1. Validation & Loading
         np_arr = np.frombuffer(file_bytes, np.uint8)
