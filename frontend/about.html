@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LoomIQ | About</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside id="sidebar-mount" class="sidebar collapsed"></aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-titles">
+                    <h1>About LoomIQ</h1>
+                    <p>Proof of Concept: AI-Powered Textile Manufacturing Intelligence</p>
+                </div>
+            <div class="header-actions">
+                    <span>Main Plant</span>
+                    <span>•</span>
+                    <span id="current-date">Updated Just Now</span>
+                    <button class="btn btn-secondary" onclick="location.reload()" aria-label="Refresh" style="padding: 6px; height: 32px; width: 32px;">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    </button>
+                </div>
+            </header>
+
+            <div class="alerts-section">
+                <h3 style="margin-bottom: 16px;">Architecture Overview</h3>
+                <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 24px;">
+                    LoomIQ was built to demonstrate full-stack engineering, machine learning, and data analytics capabilities in a modern manufacturing context. 
+                    <br><br>
+                    <strong>Backend:</strong> Python, FastAPI, SQLAlchemy, SQLite<br>
+                    <strong>Frontend:</strong> HTML5, CSS3, Vanilla JS, Chart.js<br>
+                    <strong>AI/ML:</strong> OpenCV (Computer Vision), Scikit-Learn (IsolationForest Anomaly Detection), Custom NLP Copilot
+                </p>
+
+                <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); padding: 16px; border-radius: 8px;">
+                    <strong style="color: var(--warning);">Important Disclaimer</strong>
+                    <p style="color: var(--text-secondary); margin-top: 8px;">
+                        This application is a 100% synthetic demonstration prototype. It uses artificially generated data and does not connect to any real-world production systems.
+                    </p>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="js/common.js"></script>
+</body>
+</html>

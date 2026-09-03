@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LoomIQ | AI Copilot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 180px);
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .chat-history {
+            flex-grow: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .chat-message { max-width: 80%; padding: 16px; border-radius: 8px; line-height: 1.5; }
+        .chat-message.user {
+            background: var(--accent-blue-light);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            color: var(--text-primary);
+            align-self: flex-end;
+            border-bottom-right-radius: 0;
+        }
+        .chat-message.ai {
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            align-self: flex-start;
+            border-bottom-left-radius: 0;
+        }
+        
+        .chat-message.ai strong { color: var(--text-primary); }
+        .chat-message.ai a { color: var(--accent-blue); text-decoration: none; }
+        .chat-message.ai ul { padding-left: 20px; margin-top: 8px; }
+        
+        .chat-input-area {
+            padding: 16px 24px;
+            background: var(--bg-main);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 12px;
+        }
+        
+        .chat-input {
+            flex-grow: 1;
+            background: white;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 12px 16px;
+            border-radius: 24px;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+        }
+        .chat-input:focus { border-color: var(--accent-blue); }
+        
+        .chat-send {
+            background: var(--accent-blue);
+            color: var(--text-primary);
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        .chat-send:hover { background: #2563eb; }
+        
+        .suggestions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .suggestion-chip {
+            background: white;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .suggestion-chip:hover {
+            background: var(--accent-blue-light);
+            color: var(--accent-blue);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside id="sidebar-mount" class="sidebar collapsed"></aside>
+
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-titles">
+                    <h1>LoomIQ Copilot</h1>
+                    <p>Natural language queries backed deterministically by manufacturing data</p>
+                </div>
+            <div class="header-actions">
+                    <span>Main Plant</span>
+                    <span>•</span>
+                    <span id="current-date">Updated Just Now</span>
+                    <button class="btn btn-secondary" onclick="location.reload()" aria-label="Refresh" style="padding: 6px; height: 32px; width: 32px;">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    </button>
+                </div>
+            </header>
+
+            <div class="suggestions">
+                <div class="suggestion-chip" onclick="setInput('How is machine M-017 doing today?')">How is machine M-017 doing today?</div>
+                <div class="suggestion-chip" onclick="setInput('What is our total production for today?')">What is our total production for today?</div>
+                <div class="suggestion-chip" onclick="setInput('Are there any active machine warnings?')">Are there any active machine warnings?</div>
+                <div class="suggestion-chip" onclick="setInput('How do I run a quality inspection?')">How do I run a quality inspection?</div>
+            </div>
+
+            <div class="chat-container">
+                <div class="chat-history" id="chat-history">
+                    <div class="chat-message ai">
+                        <strong>LoomIQ Copilot</strong><br><br>
+                        Hello! I am your AI manufacturing assistant. I can fetch real-time production metrics, analyze machine health risk using our ML engine, and guide you through quality workflows. 
+                        <br><br>
+                        Because I am deterministic, my answers are generated directly from the underlying SQLite database, ensuring no hallucinated metrics. How can I help you today?
+                    </div>
+                </div>
+                
+                <div class="chat-input-area">
+                    <input type="text" class="chat-input" id="chat-input" placeholder="Ask about production, machines, or quality..." onkeypress="handleEnter(event)">
+                    <button class="chat-send" onclick="sendMessage()">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-7.5-15-7.5v6l8 1.5-8 1.5v6z"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/common.js"></script>
+    <script>
+        function setInput(text) {
+            document.getElementById('chat-input').value = text;
+        }
+
+        function handleEnter(e) {
+            if(e.key === 'Enter') sendMessage();
+        }
+
+        function formatMarkdown(text) {
+            let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            html = html.replace(/\n\n/g, '<br><br>');
+            html = html.replace(/\n- (.*?)(?=\n|$)/g, '<br>• $1');
+            html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>');
+            return html;
+        }
+
+        async function sendMessage() {
+            const inputEl = document.getElementById('chat-input');
+            const text = inputEl.value.trim();
+            if(!text) return;
+            
+            inputEl.value = '';
+            
+            const history = document.getElementById('chat-history');
+            
+            // Add user message
+            const userMsg = document.createElement('div');
+            userMsg.className = 'chat-message user';
+            userMsg.textContent = text;
+            history.appendChild(userMsg);
+            
+            // Add loading state
+            const loadMsg = document.createElement('div');
+            loadMsg.className = 'chat-message ai';
+            loadMsg.innerHTML = '<div class="spinner" style="width:20px;height:20px;border-width:2px;margin:0;"></div>';
+            history.appendChild(loadMsg);
+            
+            history.scrollTop = history.scrollHeight;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/copilot/ask`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: text })
+                });
+                
+                const data = await response.json();
+                
+                // Replace loading with real answer
+                history.removeChild(loadMsg);
+                
+                const aiMsg = document.createElement('div');
+                aiMsg.className = 'chat-message ai';
+                aiMsg.innerHTML = `<strong>LoomIQ Copilot</strong><br><br>${formatMarkdown(data.answer)}`;
+                history.appendChild(aiMsg);
+                
+            } catch (error) {
+                history.removeChild(loadMsg);
+                const aiMsg = document.createElement('div');
+                aiMsg.className = 'chat-message ai';
+                aiMsg.style.color = 'var(--danger)';
+                aiMsg.innerHTML = 'Sorry, I encountered an error connecting to the API.';
+                history.appendChild(aiMsg);
+            }
+            
+            history.scrollTop = history.scrollHeight;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LoomIQ | Production Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside id="sidebar-mount" class="sidebar collapsed"></aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-titles">
+                    <h1>Production Intelligence</h1>
+                    <p>Deep dive into production metrics, yields, and efficiencies</p>
+                </div>
+            <div class="header-actions">
+                    <span>Main Plant</span>
+                    <span>•</span>
+                    <span id="current-date">Updated Just Now</span>
+                    <button class="btn btn-secondary" onclick="location.reload()" aria-label="Refresh" style="padding: 6px; height: 32px; width: 32px;">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    </button>
+                </div>
+            </header>
+            
+            <div class="filters-bar">
+                <div class="filter-group">
+                    <label>Machine</label>
+                    <select id="filter-machine">
+                        <option value="">All Machines</option>
+                        <option value="M-017">M-017 (Demo)</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Shift</label>
+                    <select id="filter-shift">
+                        <option value="">All Shifts</option>
+                        <option value="Morning">Morning</option>
+                        <option value="Afternoon">Afternoon</option>
+                        <option value="Night">Night</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <button class="btn btn-primary" onclick="applyFilters()">Apply Filters</button>
+                </div>
+            </div>
+
+            <div id="loading-state" class="loading-overlay">
+                <div class="spinner"></div>
+                <p>Loading Production Data...</p>
+            </div>
+
+            <div id="production-content" style="display: none;">
+                <div class="kpi-row">
+                    <div class="kpi-card">
+                        <h3>Production Quantity</h3>
+                        <div class="kpi-value-row">
+                            <div class="value" id="prod-quantity">--</div>
+                            <div class="kpi-trend positive">↑ 4.8%</div>
+                        </div>
+                        <div class="kpi-subtext">vs previous period</div>
+                    </div>
+                    <div class="kpi-card">
+                        <h3>Target Quantity</h3>
+                        <div class="kpi-value-row">
+                            <div class="value" id="prod-target">--</div>
+                            <div class="kpi-trend neutral">-</div>
+                        </div>
+                        <div class="kpi-subtext">current goal</div>
+                    </div>
+                    <div class="kpi-card">
+                        <h3>Achievement %</h3>
+                        <div class="kpi-value-row">
+                            <div class="value" id="prod-achievement">--</div>
+                            <div class="kpi-trend negative">↓ 1.2%</div>
+                        </div>
+                        <div class="kpi-subtext">Needs Attention</div>
+                    </div>
+                    <div class="kpi-card">
+                        <h3>Efficiency</h3>
+                        <div class="kpi-value-row">
+                            <div class="value" id="prod-efficiency">--</div>
+                            <div class="kpi-trend positive">↑ 2.1%</div>
+                        </div>
+                        <div class="kpi-subtext">Healthy</div>
+                    </div>
+                </div>
+
+                <div class="charts-row">
+                    <div class="chart-card" style="height: 350px;">
+                        <h3>Daily Production Trend</h3>
+                        <div class="chart-container">
+                            <canvas id="prodTrendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="charts-row" style="grid-template-columns: 1fr 1fr 1fr;">
+                    <div class="chart-card" style="height: 300px;">
+                        <h3>Production by Machine</h3>
+                        <div class="chart-container">
+                            <canvas id="machineChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card" style="height: 300px;">
+                        <h3>Production by Shift</h3>
+                        <div class="chart-container">
+                            <canvas id="shiftChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card" style="height: 300px;">
+                        <h3>Production by Fabric Type</h3>
+                        <div class="chart-container">
+                            <canvas id="fabricChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/production.js"></script>
+</body>
+</html>

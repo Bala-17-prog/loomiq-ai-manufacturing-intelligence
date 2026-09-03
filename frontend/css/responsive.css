@@ -1,0 +1,34 @@
+@media (max-width: 1024px) {
+    .charts-row {
+        grid-template-columns: 1fr;
+    }
+}
+@media (max-width: 768px) {
+    .app-container {
+        flex-direction: row;
+    }
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 1000;
+        height: 100vh;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+    }
+    .sidebar.expanded {
+        width: 240px;
+    }
+    .main-content {
+        padding: 16px;
+        margin-left: 85px;
+        width: calc(100% - 85px);
+    }
+    .kpi-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    /* Hide tooltips on mobile */
+    .nav-tooltip {
+        display: none !important;
+    }
+}

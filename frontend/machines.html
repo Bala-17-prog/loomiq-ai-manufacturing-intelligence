@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LoomIQ | Machines</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .badge.LOW { background: var(--success-light); color: var(--success); }
+        .badge.MEDIUM { background: var(--warning-light); color: var(--warning); }
+        .badge.HIGH { background: var(--danger-light); color: var(--danger); }
+        .badge.RUNNING { background: var(--accent-blue-light); color: var(--accent-blue); }
+        .badge.OFFLINE { background: var(--bg-main); color: var(--text-secondary); }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal {
+            background: var(--card-bg); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);
+            border-radius: 8px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto;
+            padding: 32px; position: relative; color: var(--text-primary);
+        }
+        .modal-close { position: absolute; top: 24px; right: 24px; background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 24px; transition: color 0.2s; }
+        .modal-close:hover { color: var(--text-primary); }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside id="sidebar-mount" class="sidebar collapsed"></aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-titles">
+                    <h1>Machine Management</h1>
+                    <p>Real-time fleet status and explainable AI risk assessments</p>
+                </div>
+            <div class="header-actions">
+                    <span>Main Plant</span>
+                    <span>•</span>
+                    <span id="current-date">Updated Just Now</span>
+                    <button class="btn btn-secondary" onclick="location.reload()" aria-label="Refresh" style="padding: 6px; height: 32px; width: 32px;">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    </button>
+                </div>
+            </header>
+
+            <div id="loading-state" class="loading-overlay">
+                <div class="spinner"></div>
+                <p>Loading Machine Fleet...</p>
+            </div>
+
+            <div id="machines-content" class="alerts-section" style="display: none;">
+                <table class="enterprise-table" id="machines-table">
+                    <thead>
+                        <tr>
+                            <th>Machine ID</th>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th>Status</th>
+                            <th>Risk Level</th>
+                        </tr>
+                    </thead>
+                    <tbody id="machines-body"></tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Machine Detail Modal -->
+    <div class="modal-overlay" id="machine-modal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            <h2 id="modal-title" style="margin-bottom: 8px;">--</h2>
+            <div style="color: var(--text-secondary); margin-bottom: 24px;" id="modal-subtitle">--</div>
+            
+            <div class="kpi-row" style="margin-bottom: 24px;">
+                <div class="kpi-card">
+                    <h3>Health Score</h3>
+                    <div class="value" id="modal-health-score">--</div>
+                </div>
+                <div class="kpi-card">
+                    <h3>Risk Level</h3>
+                    <div class="value badge" style="display: inline-block;" id="modal-risk-level">--</div>
+                </div>
+            </div>
+
+            <div class="alerts-section" style="margin-bottom: 24px;">
+                <h3>AI Risk Explanation</h3>
+                <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 12px;">The Isolation Forest anomaly detection model evaluated the following indicators:</p>
+                <ul id="modal-indicators" style="color: var(--warning); padding-left: 20px; font-size: 14px; line-height: 1.6;">
+                </ul>
+            </div>
+
+            <div class="chart-card" style="height: 300px;">
+                <h3>Telemetry Trend (Temperature & Vibration)</h3>
+                <canvas id="telemetryChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/machines.js"></script>
+</body>
+</html>

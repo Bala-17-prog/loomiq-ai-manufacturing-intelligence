@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LoomIQ | Quality Inspection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 48px;
+            text-align: center;
+            background: var(--bg-main);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 24px;
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--accent-blue);
+            background: var(--accent-blue-light);
+        }
+        .upload-area p { color: var(--text-secondary); margin-top: 16px; }
+        .upload-btn {
+            background: var(--accent-blue); color: white; border: none;
+            padding: 10px 24px; border-radius: 4px; font-weight: 500; cursor: pointer;
+            margin-top: 16px;
+        }
+        
+        .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px; }
+        .image-card {
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 8px; padding: 16px; text-align: center;
+        }
+        .image-card img { max-width: 100%; border-radius: 4px; max-height: 400px; object-fit: contain; }
+        .image-card h4 { color: var(--text-secondary); margin-bottom: 12px; }
+
+        .history-table { width: 100%; border-collapse: collapse; margin-top: 24px; }
+        .history-table th, .history-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .badge.PASS { background: var(--success-light); color: var(--success); }
+        .badge.REVIEW { background: var(--danger-light); color: var(--danger); }
+        .badge.NORMAL { background: var(--success-light); color: var(--success); }
+        .badge.LOW { background: var(--warning-light); color: var(--warning); }
+        .badge.MODERATE { background: var(--warning-light); color: var(--warning); }
+        .badge.HIGH { background: var(--danger-light); color: var(--danger); }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside id="sidebar-mount" class="sidebar collapsed"></aside>
+
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-titles">
+                    <h1>Visual Quality Inspection</h1>
+                    <p>Prototype Visual Anomaly Detection (OpenCV)</p>
+                </div>
+            <div class="header-actions">
+                    <span>Main Plant</span>
+                    <span>•</span>
+                    <span id="current-date">Updated Just Now</span>
+                    <button class="btn btn-secondary" onclick="location.reload()" aria-label="Refresh" style="padding: 6px; height: 32px; width: 32px;">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    </button>
+                </div>
+            </header>
+
+            <div class="alerts-section" style="margin-bottom: 32px;">
+                <input type="file" id="file-input" style="display: none;" accept="image/*">
+                <div class="upload-area" id="upload-area">
+                    <svg width="48" height="48" fill="none" stroke="var(--text-secondary)" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"></path></svg>
+                    <p>Drag and drop a fabric image here, or click to browse</p>
+                    <button class="upload-btn" style="margin-bottom: 24px;">Select Image</button>
+                    
+                    <div style="border-top: 1px solid var(--border-color); margin-top: 24px; padding-top: 24px;">
+                        <h4 style="color: var(--text-secondary); margin-bottom: 16px;">Demo Images</h4>
+                        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                            <button class="upload-btn" style="background: white; border: 1px solid var(--border-color); margin:0;" onclick="loadDemoImage(event, 'normal/normal_01.jpg')">Normal Fabric</button>
+                            <button class="upload-btn" style="background: white; border: 1px solid var(--border-color); margin:0;" onclick="loadDemoImage(event, 'defective/stain_01.jpg')">Stain Defect</button>
+                            <button class="upload-btn" style="background: white; border: 1px solid var(--border-color); margin:0;" onclick="loadDemoImage(event, 'defective/texture_01.jpg')">Texture Anomaly</button>
+                            <button class="upload-btn" style="background: white; border: 1px solid var(--border-color); margin:0;" onclick="loadDemoImage(event, 'defective/anomaly_01.jpg')">Surface Defect</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="processing-state" class="loading-overlay" style="display: none; padding: 24px; background: var(--card-bg); border-radius: 8px; border: 1px solid var(--border-color);">
+                    <div class="spinner"></div>
+                    <p>Analyzing fabric texture and detecting anomalies...</p>
+                </div>
+
+                <div id="inspection-result" style="display: none;">
+                    <h3 style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 24px;">Inspection Summary</h3>
+                    
+                    <div class="kpi-row" style="margin-bottom: 24px;">
+                        <div class="kpi-card">
+                            <h3>RESULT</h3>
+                            <div class="value badge" style="display:inline-block;" id="res-status">--</div>
+                        </div>
+                        <div class="kpi-card">
+                            <h3>ANOMALY SCORE</h3>
+                            <div class="value" id="res-score">-- / 100</div>
+                        </div>
+                        <div class="kpi-card">
+                            <h3>SEVERITY</h3>
+                            <div class="value badge" style="display:inline-block;" id="res-severity">--</div>
+                        </div>
+                        <div class="kpi-card">
+                            <h3>POTENTIAL ISSUE</h3>
+                            <div class="value" style="font-size: 16px;" id="res-issue">--</div>
+                        </div>
+                        <div class="kpi-card" title="Signal strength indicates how strongly the image-processing features differ from the normal visual baseline. It is not model accuracy.">
+                            <h3>DETECTION SIGNAL STRENGTH <span style="font-size:12px; cursor:help;">(?)</span></h3>
+                            <div class="value" id="res-confidence">--</div>
+                        </div>
+                    </div>
+
+                    <div class="score-gauge-container" style="margin: 24px 0; background: var(--card-bg); border: 1px solid var(--border-color); padding: 24px; border-radius: 8px;">
+                        <h4 style="margin-bottom: 12px; color: var(--text-secondary);">Anomaly Score Profile</h4>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; color: var(--text-secondary);">
+                            <span>0 (NORMAL)</span>
+                            <span>50 (MODERATE)</span>
+                            <span>100 (HIGH)</span>
+                        </div>
+                        <div style="width: 100%; background: var(--border-color); height: 12px; border-radius: 6px; position: relative; overflow: hidden;">
+                            <div id="gauge-fill" style="height: 100%; width: 0%; background: linear-gradient(90deg, #10b981 0%, #f59e0b 50%, #ef4444 100%); border-radius: 6px; transition: width 0.5s;"></div>
+                            <div id="gauge-marker" style="position: absolute; top: 0px; height: 100%; width: 4px; background: white; left: 0%; transition: left 0.5s; box-shadow: 0 0 4px rgba(0,0,0,0.8);"></div>
+                        </div>
+                        <div style="text-align: center; margin-top: 12px; font-weight: 600; font-size: 14px;" id="gauge-text">Current: --</div>
+                    </div>
+
+                    <div class="result-grid">
+                        <div class="image-card">
+                            <h4>Original Image</h4>
+                            <img id="img-original" src="" alt="Original">
+                        </div>
+                        <div class="image-card">
+                            <h4>Processed Detection Result</h4>
+                            <img id="img-processed" src="" alt="Processed">
+                        </div>
+                    </div>
+
+                    <div class="processing-details" style="margin-top: 32px;">
+                        <h3 style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 16px;">Processing Details</h3>
+                        <table class="enterprise-table" style="margin-top: 0; font-size: 14px;">
+                            <tbody id="details-body">
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="how-it-works" style="margin-top: 32px; background: rgba(59,130,246,0.05); border: 1px solid rgba(59,130,246,0.2); padding: 24px; border-radius: 8px;">
+                        <h3 style="margin-bottom: 16px;">How It Works</h3>
+                        <ol style="color: var(--text-secondary); line-height: 1.6; margin-left: 20px; margin-bottom: 16px; font-size: 14px;">
+                            <li>Image Validation</li>
+                            <li>Preprocessing (Grayscale Conversion, Noise Reduction)</li>
+                            <li>Texture / Intensity Analysis (Local Contrast Analysis)</li>
+                            <li>Anomaly Detection (Thresholding)</li>
+                            <li>Region Detection (Contour Detection)</li>
+                            <li>Visual Annotation</li>
+                            <li>Score Calculation</li>
+                            <li>Database Storage</li>
+                        </ol>
+                        <p style="color: var(--text-secondary); font-size: 14px; font-style: italic;">This prototype uses explainable OpenCV image-processing techniques to identify visually unusual regions in fabric images. It is intended as a proof-of-concept and is not a production-grade textile defect classification model.</p>
+                    </div>
+
+                    <button class="upload-btn" style="margin-top: 24px;" onclick="resetUpload()">Inspect Another Image</button>
+                </div>
+            </div>
+
+            <div class="alerts-section">
+                <h3>Inspection History</h3>
+                <table class="enterprise-table">
+                    <thead>
+                        <tr>
+                            <th>Inspection ID</th>
+                            <th>Timestamp</th>
+                            <th>Result</th>
+                            <th>Score</th>
+                            <th>Severity</th>
+                            <th>Potential Issue</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-body">
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/quality.js"></script>
+</body>
+</html>

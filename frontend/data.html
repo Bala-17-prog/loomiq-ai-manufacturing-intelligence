@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LoomIQ | Data Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside id="sidebar-mount" class="sidebar collapsed"></aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-titles">
+                    <h1>Data Management</h1>
+                    <p>Dataset statistics and demonstration data controls</p>
+                </div>
+                <div class="header-actions">
+                    <span>Main Plant</span>
+                    <span>•</span>
+                    <span id="current-date">Updated Just Now</span>
+                    <button class="btn btn-secondary" onclick="location.reload()" aria-label="Refresh" style="padding: 6px; height: 32px; width: 32px;">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    </button>
+                </div>
+            </header>
+
+            <div class="alerts-section">
+                <h3>Synthetic Data Status</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 24px;">The current LoomIQ database contains 365 days of highly realistic synthetic demonstration data generated explicitly for this environment. It does not reflect any real-world entities.</p>
+                
+                <div class="kpi-row" style="margin-bottom: 32px;">
+                    <div class="kpi-card">
+                        <h3>Dataset Size</h3>
+                        <div class="value">365 Days</div>
+                    </div>
+                    <div class="kpi-card">
+                        <h3>Machines Profiled</h3>
+                        <div class="value">20</div>
+                    </div>
+                    <div class="kpi-card">
+                        <h3>Telemetry Points</h3>
+                        <div class="value">175,200+</div>
+                    </div>
+                </div>
+
+                <h3>Recent Synthesized Records</h3>
+                <table class="enterprise-table" id="data-preview" style="margin-top: 16px;">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Entity Type</th>
+                            <th>Timestamp</th>
+                            <th>Data Summary</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>#10492</td><td>Machine Telemetry</td><td>Just now</td><td>Temp: 45.2°C, Vib: 2.1mm/s (Normal)</td></tr>
+                        <tr><td>#10491</td><td>Production Batch</td><td>2 mins ago</td><td>Yield: 98%, Defects: 2 (Normal)</td></tr>
+                        <tr><td>#10490</td><td>Quality Inspection</td><td>15 mins ago</td><td>Result: PASS, Score: 4 (Normal)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    <script src="js/common.js"></script>
+</body>
+</html>

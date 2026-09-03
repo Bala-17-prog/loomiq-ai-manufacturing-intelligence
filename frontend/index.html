@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LoomIQ | Factory Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside id="sidebar-mount" class="sidebar collapsed"></aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-titles">
+                    <h1>Factory Intelligence Overview</h1>
+                    <p>Real-time insights from demonstration manufacturing data</p>
+                </div>
+                <div class="header-actions">
+                    <span>Main Plant</span>
+                    <span>•</span>
+                    <span id="current-date">Updated Just Now</span>
+                    <button class="btn btn-secondary" onclick="location.reload()" aria-label="Refresh" style="padding: 6px; height: 32px; width: 32px;">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    </button>
+                </div>
+            </header>
+
+            <div id="loading-state" class="loading-overlay">
+                <div class="spinner"></div>
+                <p>Loading Factory Intelligence...</p>
+            </div>
+
+            <div id="dashboard-content" style="display: none;">
+                
+                <!-- ROW 1: KPIs -->
+                <div class="grid-12">
+                    <div class="kpi-card col-span-3">
+                        <h3>Total Production</h3>
+                        <div class="kpi-value-row">
+                            <div class="value" id="kpi-production">--</div>
+                            <div class="kpi-trend positive">↑ 4.8%</div>
+                        </div>
+                        <div class="kpi-subtext">vs previous period</div>
+                    </div>
+                    <div class="kpi-card col-span-3">
+                        <h3>Avg Efficiency</h3>
+                        <div class="kpi-value-row">
+                            <div class="value" id="kpi-efficiency">--</div>
+                            <div class="kpi-trend positive">↑ 2.1%</div>
+                        </div>
+                        <div class="kpi-subtext">Healthy</div>
+                    </div>
+                    <div class="kpi-card col-span-3">
+                        <h3>Defect Rate</h3>
+                        <div class="kpi-value-row">
+                            <div class="value" id="kpi-defects">--</div>
+                            <div class="kpi-trend neutral">-</div>
+                        </div>
+                        <div class="kpi-subtext">Acceptable range</div>
+                    </div>
+                    <div class="kpi-card col-span-3">
+                        <h3>Active Machines</h3>
+                        <div class="kpi-value-row">
+                            <div class="value" id="kpi-machines">--</div>
+                            <div class="kpi-trend neutral">-</div>
+                        </div>
+                        <div class="kpi-subtext" id="kpi-offline">-- offline</div>
+                    </div>
+                </div>
+
+                <!-- ROW 2: Main Analytics & Alerts -->
+                <div class="grid-12">
+                    <div class="chart-card col-span-8" style="height: 350px;">
+                        <h3>Weekly Production vs Target</h3>
+                        <div class="chart-container">
+                            <canvas id="productionChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="data-card col-span-4" style="height: 350px; overflow-y: auto;">
+                        <h3>Recent Alerts</h3>
+                        <div class="alerts-list" id="alerts-list">
+                            <!-- Alerts dynamically populated -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ROW 3: Lower Analytics -->
+                <div class="grid-12">
+                    <div class="chart-card col-span-6" style="height: 350px;">
+                        <h3>Efficiency by Shift</h3>
+                        <div class="chart-container">
+                            <canvas id="shiftChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="data-card col-span-6" style="height: 350px;">
+                        <h3>Machine Status</h3>
+                        <div class="machine-status-panel" style="margin-top: 16px; display: flex; flex-direction: column; gap: 16px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--border-color);">
+                                <span style="font-weight: 500; color: var(--text-secondary);">Total Machines</span>
+                                <span style="font-size: 16px; font-weight: 600;" id="status-total-machines">--</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--border-color);">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--success);"></span>
+                                    <span style="color: var(--text-secondary);">Running (Healthy)</span>
+                                </div>
+                                <span style="font-size: 16px; font-weight: 600;" id="status-healthy">--</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--border-color);">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--warning);"></span>
+                                    <span style="color: var(--text-secondary);">Warning</span>
+                                </div>
+                                <span style="font-size: 16px; font-weight: 600;" id="status-warning">--</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--danger);"></span>
+                                    <span style="color: var(--text-secondary);">Critical / Offline</span>
+                                </div>
+                                <span style="font-size: 16px; font-weight: 600;" id="status-critical">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

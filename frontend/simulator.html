@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LoomIQ | What-If Simulator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .simulator-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 32px; }
+        
+        .controls-panel {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 24px;
+        }
+        
+        .control-group { margin-bottom: 24px; }
+        .control-group label { display: flex; justify-content: space-between; margin-bottom: 8px; color: var(--text-secondary); font-size: 14px; }
+        
+        input[type=range] {
+            width: 100%;
+            -webkit-appearance: none;
+            background: var(--border-color);
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--accent-blue);
+            cursor: pointer;
+        }
+        
+        .impact-card {
+            text-align: center;
+            padding: 32px;
+            background: var(--success-light);
+            border: 1px solid var(--success);
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+        .impact-value {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--success);
+            margin: 16px 0;
+        }
+        .impact-card.negative {
+            background: var(--danger-light);
+            border: 1px solid var(--danger);
+        }
+        .impact-card.negative .impact-value { color: var(--danger); }
+        
+        .comparison-table { width: 100%; border-collapse: collapse; margin-top: 24px; }
+        .comparison-table th, .comparison-table td { padding: 16px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .comparison-table th { color: var(--text-secondary); }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside id="sidebar-mount" class="sidebar collapsed"></aside>
+
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-titles">
+                    <h1>What-If Factory Simulator</h1>
+                    <p>Adjust operational parameters to simulate production outcomes and financial impact.</p>
+                </div>
+            <div class="header-actions">
+                    <span>Main Plant</span>
+                    <span>•</span>
+                    <span id="current-date">Updated Just Now</span>
+                    <button class="btn btn-secondary" onclick="location.reload()" aria-label="Refresh" style="padding: 6px; height: 32px; width: 32px;">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    </button>
+                </div>
+            </header>
+
+            <div class="simulator-grid">
+                <div class="controls-panel">
+                    <h3 style="margin-bottom: 24px;">Scenario Parameters</h3>
+                    
+                    <div class="control-group">
+                        <label>
+                            <span>Machine Speed Multiplier</span>
+                            <span id="speed-val">1.0x</span>
+                        </label>
+                        <input type="range" id="speed" min="0.8" max="1.5" step="0.05" value="1.0" oninput="updateSimulation()">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>
+                            <span>Downtime Reduction</span>
+                            <span id="downtime-val">0%</span>
+                        </label>
+                        <input type="range" id="downtime" min="-0.5" max="0.5" step="0.05" value="0" oninput="updateSimulation()">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>
+                            <span>Defect Rate Change</span>
+                            <span id="defect-val">0%</span>
+                        </label>
+                        <input type="range" id="defect" min="-0.1" max="0.1" step="0.01" value="0" oninput="updateSimulation()">
+                    </div>
+                    
+                    <button class="upload-btn" style="width:100%" onclick="resetSimulation()">Reset to Baseline</button>
+                </div>
+
+                <div class="results-panel">
+                    <div class="impact-card" id="impact-card">
+                        <h3>Estimated Daily Revenue Impact</h3>
+                        <div class="impact-value" id="revenue-impact">$0</div>
+                        <p id="percentage-impact" style="color: var(--text-secondary)">0.00% change vs baseline</p>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3>Baseline vs Simulated Outcomes</h3>
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Metric</th>
+                                    <th>Current Baseline</th>
+                                    <th>Simulated Result</th>
+                                    <th>Delta</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Gross Production</strong></td>
+                                    <td id="base-prod">--</td>
+                                    <td id="sim-prod">--</td>
+                                    <td id="delta-prod">--</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Defect Units</strong></td>
+                                    <td id="base-def">--</td>
+                                    <td id="sim-def">--</td>
+                                    <td id="delta-def">--</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Net Good Units</strong></td>
+                                    <td id="base-good">--</td>
+                                    <td id="sim-good">--</td>
+                                    <td id="delta-good">--</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/simulator.js"></script>
+</body>
+</html>
