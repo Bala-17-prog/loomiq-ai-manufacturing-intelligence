@@ -4,6 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from backend.database import Base
 from backend.ai.copilot import CopilotEngine
 from backend.models.models import Machine, MachineMetric, QualityInspection, Production, Defect
+from backend.ai.llm_provider import LLMProvider
 from datetime import date, datetime
 
 # Use an in-memory SQLite database for testing deterministic responses

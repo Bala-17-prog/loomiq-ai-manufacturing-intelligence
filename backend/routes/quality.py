@@ -11,8 +11,13 @@ router = APIRouter(prefix="/api/quality", tags=["Quality Inspection"])
 
 # Setup detector pointing to data dir
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-IMAGE_DIR = os.path.join(BASE_DIR, "data", "fabric_images")
-detector = PrototypeVisualAnomalyDetector(IMAGE_DIR)
+if os.getenv("VERCEL") == "1":
+    IMAGE_DIR = "/tmp/loomiq_images"
+    URL_PREFIX = "/api/runtime_images"
+else:
+    IMAGE_DIR = os.path.join(BASE_DIR, "data", "fabric_images")
+    URL_PREFIX = "/images"
+detector = PrototypeVisualAnomalyDetector(IMAGE_DIR, url_prefix=URL_PREFIX)
 
 class ProcessingDetails(BaseModel):
     image_width: int

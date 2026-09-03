@@ -6,8 +6,9 @@ import time
 from datetime import datetime
 
 class PrototypeVisualAnomalyDetector:
-    def __init__(self, base_dir: str):
+    def __init__(self, base_dir: str, url_prefix: str = "/images"):
         self.base_dir = base_dir
+        self.url_prefix = url_prefix
         self.raw_dir = os.path.join(base_dir, "raw")
         self.processed_dir = os.path.join(base_dir, "processed")
         
@@ -205,8 +206,8 @@ class PrototypeVisualAnomalyDetector:
             "severity": severity,
             "potential_issue": potential_issue if result == "REVIEW" else "None",
             "detection_strength": round(detection_signal_strength, 1),
-            "original_image_url": f"/images/raw/{raw_filename}",
-            "processed_image_url": f"/images/processed/{processed_filename}",
+            "original_image_url": f"{self.url_prefix}/raw/{raw_filename}",
+            "processed_image_url": f"{self.url_prefix}/processed/{processed_filename}",
             "processing_details": {
                 "image_width": orig_w,
                 "image_height": orig_h,
