@@ -40,6 +40,10 @@ def db_session():
     yield db
     db.close()
 
+@pytest.fixture(autouse=True)
+def disable_llm(monkeypatch):
+    monkeypatch.setattr(LLMProvider, "is_available", lambda self: False)
+
 def test_highest_downtime_intent(db_session):
     engine = CopilotEngine(db_session)
     # Using regex fallback or LLM, it should route correctly
@@ -161,7 +165,7 @@ def test_llm_fallback_on_exception(db_session, monkeypatch):
     monkeypatch.setattr(engine.llm, "generate_explanation", mock_generate)
     monkeypatch.setattr(engine.llm, "determine_intent", mock_intent)
     # Ensure it's treated as available so the try/except block runs
-    monkeypatch.setattr(engine.llm, "is_available", lambda: True)
+    monkeypatch.setattr(LLMProvider, "is_available", lambda self: True)
 
     res = engine.ask("Which machine needs the most attention?")
     

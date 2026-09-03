@@ -1,4 +1,4 @@
-import pandas as pd
+
 from sklearn.ensemble import IsolationForest
 from backend.ml.features import compute_deviations
 
@@ -16,20 +16,18 @@ class MachineHealthEngine:
         if not metrics:
             return {"score": 100, "risk": "LOW", "indicators": []}
             
-        df = pd.DataFrame([{
-            "temperature": m.temperature,
-            "vibration": m.vibration,
-            "rpm": m.rpm,
-            "energy": m.energy_consumption
-        } for m in metrics])
+        import numpy as np
         
         # We need enough data to fit, otherwise default
-        if len(df) < 10:
+        if len(metrics) < 10:
             return {"score": 100, "risk": "LOW", "indicators": []}
             
+        features = [[m.temperature, m.vibration, m.rpm, m.energy_consumption] for m in metrics]
+        X = np.array(features)
+        
         # Fit model on the historical data to detect if the latest point is an anomaly
-        self.model.fit(df.values)
-        latest_features = df.iloc[[0]].values
+        self.model.fit(X)
+        latest_features = X[[0]]
         
         # Anomaly score: negative is anomaly, positive is normal
         anomaly_score_raw = self.model.decision_function(latest_features)[0]

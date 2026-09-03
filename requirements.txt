@@ -4,14 +4,11 @@ pydantic
 pydantic-settings
 sqlalchemy
 alembic
-psycopg2-binary
-pytest
 httpx
 python-dotenv
-pandas
 numpy
 scikit-learn
-opencv-python
+opencv-python-headless
 pillow
 python-multipart
 openai

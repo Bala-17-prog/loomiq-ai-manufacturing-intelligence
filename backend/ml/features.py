@@ -1,5 +1,5 @@
 import numpy as np
-import pandas as pd
+
 from typing import List
 from backend.models.models import MachineMetric
 
@@ -11,35 +11,38 @@ def compute_deviations(metrics: List[MachineMetric]):
     if not metrics:
         return {}
         
-    df = pd.DataFrame([{
-        "temperature": m.temperature,
-        "vibration": m.vibration,
-        "rpm": m.rpm,
-        "energy": m.energy_consumption,
-        "downtime": m.downtime_minutes
-    } for m in metrics])
-    
-    # Baseline is mean of all history
-    baseline = df.mean()
-    
-    # Latest reading
-    latest = df.iloc[0] # assuming sorted desc
+    features = []
+    downtimes = []
+    for m in metrics:
+        features.append([m.temperature, m.vibration, m.rpm, m.energy_consumption])
+        downtimes.append(m.downtime_minutes)
+        
+    X = np.array(features)
+    baseline_vals = np.mean(X, axis=0)
+    latest_vals = X[0]
     
     deviations = {}
-    for col in ["temperature", "vibration", "rpm", "energy"]:
-        if baseline[col] > 0:
-            dev = ((latest[col] - baseline[col]) / baseline[col]) * 100
+    cols = ["temperature", "vibration", "rpm", "energy"]
+    for i, col in enumerate(cols):
+        b_val = baseline_vals[i]
+        l_val = latest_vals[i]
+        if b_val > 0:
+            dev = ((l_val - b_val) / b_val) * 100
         else:
             dev = 0
         deviations[col] = {
-            "latest": round(latest[col], 2),
-            "baseline": round(baseline[col], 2),
-            "deviation_pct": round(dev, 2)
+            "latest": round(float(l_val), 2),
+            "baseline": round(float(b_val), 2),
+            "deviation_pct": round(float(dev), 2)
         }
         
     # Downtime trend
-    recent_downtime = df.head(7)['downtime'].sum()
-    past_downtime = df.iloc[7:14]['downtime'].sum() if len(df) > 14 else recent_downtime
+    recent_downtime = sum(downtimes[:7])
+    if len(downtimes) > 14:
+        past_downtime = sum(downtimes[7:14])
+    else:
+        past_downtime = recent_downtime
+        
     if past_downtime > 0:
         dt_dev = ((recent_downtime - past_downtime) / past_downtime) * 100
     else:
@@ -48,7 +51,7 @@ def compute_deviations(metrics: List[MachineMetric]):
     deviations["downtime"] = {
         "recent_7d": float(recent_downtime),
         "prev_7d": float(past_downtime),
-        "deviation_pct": round(dt_dev, 2)
+        "deviation_pct": round(float(dt_dev), 2)
     }
     
     return deviations
