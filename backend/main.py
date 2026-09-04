@@ -34,7 +34,8 @@ if os.getenv("VERCEL") == "1":
     except OSError:
         pass
     app.mount("/api/runtime_images", StaticFiles(directory=IMAGE_DIR), name="runtime_images")
-    app.mount("/images", StaticFiles(directory=STATIC_IMAGE_DIR), name="images")
+    if os.path.exists(STATIC_IMAGE_DIR):
+        app.mount("/images", StaticFiles(directory=STATIC_IMAGE_DIR), name="images")
 else:
     IMAGE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "fabric_images")
     try:
