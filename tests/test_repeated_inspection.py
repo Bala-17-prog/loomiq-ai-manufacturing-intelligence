@@ -1,7 +1,10 @@
-import requests
+from fastapi.testclient import TestClient
+from backend.main import app
+
+client = TestClient(app)
 
 def test_repeated_inspection():
-    base_url = 'http://localhost:8000/api'
+
     img_path = r'd:\loomiq-ai-manufacturing-intelligence\data\fabric_images\defective\anomaly_01.jpg'
     
     results = []
@@ -9,7 +12,7 @@ def test_repeated_inspection():
     
     for i in range(10):
         with open(img_path, 'rb') as f:
-            res = requests.post(f'{base_url}/quality/inspect', files={'file': ('anomaly_01.jpg', f, 'image/jpeg')}).json()
+            res = client.post('/api/quality/inspect', files={'file': ('anomaly_01.jpg', f, 'image/jpeg')}).json()
             results.append(res)
             print(f"Run {i+1} -> Score: {res['anomaly_score']}, Severity: {res['severity']}, Result: {res['result']}, Issue: {res['potential_issue']}, Hash: {res['image_hash'][:8]}..., Processing Time: {res['processing_details']['processing_time_ms']}ms")
             

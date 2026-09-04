@@ -1,17 +1,19 @@
-import requests
+from fastapi.testclient import TestClient
+from backend.main import app
+import sys
+
+client = TestClient(app)
 import sys
 
 def test_determinism():
-    base_url = 'http://localhost:8000/api'
+
     img_path = r'd:\loomiq-ai-manufacturing-intelligence\data\fabric_images\defective\stain_01.jpg'
     
     results = []
     for i in range(3):
         with open(img_path, 'rb') as f:
-            res = requests.post(f'{base_url}/quality/inspect', files={'file': ('stain_01.jpg', f, 'image/jpeg')})
-            if res.status_code != 200:
-                print(f"Failed on request {i+1}: {res.text}")
-                sys.exit(1)
+            res = client.post('/api/quality/inspect', files={'file': ('stain_01.jpg', f, 'image/jpeg')})
+            assert res.status_code == 200, f"Failed on request {i+1}: {res.text}"
             results.append(res.json())
             
     r1, r2, r3 = results
